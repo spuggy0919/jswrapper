@@ -61,7 +61,6 @@
 /* main */
     // type mapping (c_arg_type->js_arg_type) (cret->jsrettype)
     // maybe need to correction
-
 let process = require('process');   
 let  fs = (process.cwd() == '/js/jswmgen') ? require('nodefs'): require('./nodefs');
 
@@ -75,10 +74,12 @@ var lines = 0;
 
 if (process.argv.length>2) {
     jsonFileName ='./json/'+process.argv[2];
-    if (process.argv.length==4) outFileName = './jswrapper/'+process.argv[3];
 }
 const [argMappings_C_to_JS,retMappings_C_to_JS] = definedConst();
 [methods,cobj] = loadJsonFile(jsonFileName);
+outFileName = './jswrapper/jsw_'+methods.className+".cpp";
+if (process.argv.length==4) outFileName = './jswrapper/'+process.argv[3];
+
 dumpMethods(jsonFileName,outFileName,methods);
 pass1CheckMethods(jsonFileName,outFileName,methods);
 
@@ -110,6 +111,9 @@ let methods={ // default
 }
 
 function dumpMethods(jsonFile,outFile,methods){
+    console.log('//C++ wrapper auto generator jswmgen.js ver.'+version);
+    console.log('//https://github.com/spuggy0919/jswrapper.git');
+    console.log('//**WARNING**You should examine and fix the code to meet your requirements!');
     console.log('//Json:',jsonFile,'\n');
     console.log('//File:',outFile,'\n');
     console.log('//className:',methods.className,'\n');
@@ -122,7 +126,13 @@ function dumpMethods(jsonFile,outFile,methods){
     });
     if (outFile!=''){
         fs.deleteFileNodeJS(outFile);
-        fs.writeFileNodeJS(outFile,'// '+outFile,app+version);
+        // writeln(outFile,'// '+outFile,app+version);
+        let now = new Date();
+        fs.writeFileNodeJS(outFile,''); // createFile
+        writeln(outFile,'//C++ wrapper auto generator jswmgen.js ver.'+version);
+        writeln(outFile,'//https://github.com/spuggy0919/jswrapper.git');
+        writeln(outFile,'//**WARNING**You should examine and fix the code to meet your requirements!');
+        writeln(outFile,'//'+now.toString().slice(0,33));
         writeln(outFile,'//Json:'+jsonFile);
         writeln(outFile,'//File:'+outFile);
         writeln(outFile,'//className:'+methods.className);
@@ -222,7 +232,8 @@ function definedConstArg(){
         "uint8_t*": "arraybuffer",
         "uint16_t*": "arraybuffer",
         "uint32_t*": "arraybuffer",
-        "int_t*": "arraybuffer", // ignore part should be modified as GFX drawbitmap
+        "int*": "arraybuffer",
+        "int_t*": "arraybuffer", 
         "int8_t*": "arraybuffer",
         "int16_t*": "arraybuffer",
         "int32_t*": "arraybuffer",        
@@ -260,10 +271,11 @@ function definedConstRet(){
         "uint32_t": "number",
         "uint8*": "string",
         "uint8_t*": "string",
+        "int*": "number", // TODO return a array buffer point, now default number
         "char*": "string",
         "char": "number",
         "bool": "boolean",
-        "void": "void"   // undefined is keywordmaybe transfer in functions
+        "void": "void"   // undefined is keyword maybe transfer in functions
     };// TODO crettype auto transfer to jsrettype
 
     return retMappings_C_to_JS;

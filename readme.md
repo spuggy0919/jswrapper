@@ -1,5 +1,5 @@
 ### Jerryscript js examples
-These js files can be run on ESP32_tinyConsole projects
+These js files can be run on ESP32_tinyConsole project
 support require statement for module, the module.js must at directory /js/modules
 testng directory still has some problem.
 ```
@@ -26,14 +26,14 @@ dumpf.js        2341	     # js dumpf Rectangle
 dumpg.js        1533	     # js dumpg
 jswmgen.js     21672	     # js jswmgen [jsonFile OutputFile]
 ```
-In iot enviroment, you need include a lot of libraries, but jerryscript did not have these io libraries. we need to use a C++ binding wrapper to static compiler link this.
+In iot enviroment, you need include a lot of libraries, but jerryscript did not have these io libraries. we need to use a C++ binding wrapper to static compiler link.
 1. prepare one wrapper CPP, to binding call C++ class object library, 
 2. register this to jerryscript
 3. use js call the binding object, use library.
-The first step is a lot of handmade work, here we use a autogen to reduce the workload.
+The first step is a lot of handmade work, here we use a auto generator to reduce the workload.
 ## Wrapper generator
-Run with Node.js can Generator the Arduino ESP32 Library Wrapprt, which .h contains classObject.
-When Generator, feed into ESP32_TinyConsole project to compiler. then the Object can be used in Jerryscript.
+Run with Node.js can Generator the Arduino ESP32 Library Wrapper, which .h contains classObject.
+When wrapper cpp is generated, checked,and feed into ESP32_TinyConsole project to compiler. then the new Object can be used in Jerryscript.
 ### Fill the methods fields in jswmgen.js or write into json file
 ```
 methods = {
@@ -49,7 +49,7 @@ methods = {
     methodNames:[],
 }
 ```
-### method prototype rules, should be strict type name pairs
+### Method prototypes syntax rules, should be strict type name pairs
 ```
 // for constructorPrototype
 'Rectangle::Rectangle(int length,int width);', // correct
@@ -59,20 +59,20 @@ Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, TwoWire* twi ,int8_t rs
 Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, int8_t rst_pin, uint32_t clkDuring , uint32_t clkAfter); // correct , then ->Adafruit_SSD1306(w,h,&Wire,rstpin,clkDuring,clkAfter);
 Adafruit_SSD1306::Adafruit_SSD1306(uint8_t w, uint8_t h, TwoWire* twi ,int8_t rst_pin, uint32_t clkDuring , uint32_t clkAfter);
 "void createChar(uint8_t c, uint8_t* buf);", // correct
-"begin(uint8_t lcd_addr, uint8_t lcd_cols, uint8_t lcd_rows, uint8_t charsize = LCD_5x8DOTS);" // error ,  "= LCD_5x8DOTS" is not allowed, you can set it as OPTIONAL Later and set default value into arg declaration.
+"begin(uint8_t lcd_addr, uint8_t lcd_cols, uint8_t lcd_rows, uint8_t charsize = LCD_5x8DOTS);" // error ,  "= LCD_5x8DOTS" is not allowed, you can set it as OPTIONAL later and set default value into arg declaration.
 void createChar(uint8_t , uint8_t* );", // error, argvar name miss
 "void createChar(const uint8_t c, uint8_t* buf);", // error, const redundence
 "int8 createChar(int8 c, uint8_t* buf);", // error, int8 is not defined in argMappings_C_to_JS or retMappings_C_to_JS
-"void createChar(uint8_t c, uint8_t *buf);", // error, should ne uint8_t*
-"void createChar(uint8_t c, uint8_t buf[]);", // error, should ne uint8_t*
+"void createChar(uint8_t c, uint8_t *buf);", // error, should be uint8_t*
+"void createChar(uint8_t c, uint8_t buf[]);", // error, should be uint8_t*
 "void createChar( uint8_t c, uint8_t *buf);", // possible, '( uint8_t' to '(uint8_t'
-"void createChar(uint8_t c, uint8_t* buf);", // corrcet, uint8_t* will mapping to jerryx_arg_array
+"void createChar(uint8_t c, uint8_t* buf);", // corrcet, uint8_t* will mapping to jerryx_arg_arraybuffer
 "void createChar(uint8_t c, char* buf);", // corrcet, char* will mapping to jerryx_arg_string
 "void getTextBounds(char* str, int16_t x, int16_t y, int16_t* x1, int16_t* y1, uint16_t* w, uint16_t* h);", // char* map to jerryx_arg_string, int16_t* x1 to int16 "void createChar(uint8_t c, uint8_t* buf);", // corrcet, uint8_t* will mapping to jerryx_arg_array
 
 ```
 ## C Arguments mapping to JS 
-It onverts from C arg type to js type defined in argMappings_C_to_JS. There are some exceptions,ignore, function, native_pointer, and custom should be coded by yourself. 
+It converts from C arg type to js type defined in argMappings_C_to_JS. There are some exceptions, ignore, function, native_pointer, and custom should be coded by yourself. 
 ```
 function definedConstArg(){
         const argMappings_C_to_JS = { // TODO for arg_type mappings type 
@@ -94,7 +94,7 @@ function definedConstArg(){
         "uint8_t*": "arraybuffer",
         "uint16_t*": "arraybuffer",
         "uint32_t*": "arraybuffer",
-        "int_t*": "arraybuffer",
+        "int_t*": "arraybuffer", // ignore part should be modified as GFX drawbitmap
         "int8_t*": "arraybuffer",
         "int16_t*": "arraybuffer",
         "int32_t*": "arraybuffer",        
@@ -104,10 +104,11 @@ function definedConstArg(){
         "double": "number",
         "float": "number",
         "bool": "boolean",
-        "ignore": "ignore",         // TODO for ignore
-        "void*": "native_pointer",    // TODO for object nativeshould be  void*    
-        "funcptr": "function"   // TODO for callback should be typedef funcptr prototype
-        "custome": "custome"   // TODO for custome
+        "ignore": "ignore",         // TODO ignore one, and process later
+        "void*": "native_pointer",    // TODO for class Object
+        "funcptr": "function",   // TODO for callback should be typedef funcptr prototype
+        "custome": "custome"   // TODO 
+
     };
     return argMappings_C_to_JS;
 }
@@ -136,10 +137,10 @@ function definedConstRet(){
         "uint32_t": "number",
         "uint8*": "string",
         "uint8_t*": "string",
-        "char*": "string_sz",
+        "char*": "string",
         "char": "number",
         "bool": "boolean",
-        "void": "void"   // undefined is keywordmaybe transfer in functions
+        "void": "void"  
     };// TODO crettype auto transfer to jsrettype
 
     return retMappings_C_to_JS;
@@ -149,8 +150,8 @@ function definedConstRet(){
 the default .h in include subdirectory.
 the default .json in json subdirectory.
 ```
-%node h2json Rectangle.h     # if will generator a json file in json folder
-%node jswmgen Rectangle.json Rectangle.cpp # cpp will be generator in jswrapper folder.
+%node h2json Rectangle.h     # if success, it will generator a json file in json folder
+%node jswmgen Rectangle.json Rectangle.cpp # cpp will be generated in jswrapper folder.
 ```
 
 ## In ESP32_tinyConsole use below.

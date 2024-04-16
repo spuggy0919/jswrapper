@@ -1,9 +1,9 @@
-// ./jswrapper/autotemp.cpp
+// ./jswrapper/jsw_rect_example.cpp
 //C++ wrapper auto generator jswmgen.js ver.0.9.0
 //https://github.com/spuggy0919/jswrapper.git
 //You should examine and fix the code to meet your requirements!
 //Json:./json/Rectangle.json
-//File:./jswrapper/autotemp.cpp
+//File:./jswrapper/jsw_rect_example.cpp
 //className:Rectangle
 //classObj:rectangle
 //constructorPrototype:Rectangle()
