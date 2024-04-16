@@ -150,7 +150,7 @@ function definedConstRet(){
 the default .h in include subdirectory.
 the default .json in json subdirectory.
 ```
-%node h2json Rectangle.h     # if success, it will generator a json file in json folder
+%node h2json Rectangle.h     # if success, it will generate a json file in json folder
 %node jswmgen Rectangle.json Rectangle.cpp # cpp will be generated in jswrapper folder.
 ```
 
