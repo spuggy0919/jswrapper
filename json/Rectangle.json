@@ -1,0 +1,11 @@
+{"className":"Rectangle",
+"classObj":"rectangle",
+"constructorPrototype":"Rectangle()",
+"prototypesArray":[
+"int getSize();",
+"int getLength();",
+"int getWidth();",
+"int getBuf(int* buf,int len);",
+"int* getBufPtr();",
+"int setBuf(int* buf,int len);"],
+"methodNames":[]}
