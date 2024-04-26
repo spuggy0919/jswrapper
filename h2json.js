@@ -31,15 +31,17 @@ methods.prototypesArray.forEach( (element, index, array)=>{
     // let old = element;
     let e = element.replace(/const\s+/g,'');  //remove const
     let f = e.replace(/\s+\*\s*/g,'* '); //type *var ==> type* var
-    array[index] = f;
+    let g = f.replace(/\(void\)/g,'()'); //type *var ==> type* var
+    array[index] = g;
     // console.log(old, f);
 });
 dumpMethodsObj(methods);
 
 let jsonStr = JSON.stringify(methods);
-let estr = jsonStr.replace(/",/g,'",\n');
-let fstr = estr.replace(/\["/g,'[\n"');
-let lineStr = fstr.replace(/\],/g,'],\n');
+let estr = jsonStr.replace(/(?<!\\)",/g,'",\n'); //", to ",\n
+let fstr = estr.replace(/\["/g,'[\n"');    // [ arrary beginner \n
+let gstr = fstr.replace(/\s*=\s*[^,)]*/g,'');
+let lineStr = gstr.replace(/"\],/g,'"],\n'); // default = removed
 fs.writeFileNodeJS(outputFile,lineStr);
 process.exit(0);
 function parserMethodsObj(fileContent){
@@ -78,16 +80,17 @@ function parserMethodsObj(fileContent){
         } else {
             console.log('Public block not found.');
         }
-        let constructorPattern =new RegExp(`^\\s*(${className}\\s*\\(.*\\))`,'gm');
+        let pattern = `^\\s*(${className}\\s*\\(.*\\))`;
+        let constructorPattern =new RegExp(pattern,'gm');
         // Find the constructor prototype
-        let constructorMatch = fileContent.match(constructorPattern);
+        let constructorMatch = publicBlock.match(constructorPattern);
         if (constructorMatch) {
-            const constructorPrototype = className+'::'+constructorMatch[0].trim();
+            let constructorPrototype = (className+'::'+constructorMatch[0]).trim();
             methods.constructorPrototype = constructorPrototype;
         } else {
             methods.constructorPrototype = className+'::'+className+'()';
         }
-        console.log(`Constructor Prototype: ${constructorPrototype}`);
+        console.log(`Constructor Prototype: ${methods.constructorPrototype}`);
 
     } catch(e) {
         console.log('Error',e.message);

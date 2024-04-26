@@ -1,0 +1,8 @@
+{"className":"SPISettings",
+"classObj":"spisettings",
+"constructorPrototype":"SPISettings::SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode)",
+"prototypesArray":[
+    "uint32_t _clock(uint32_t clock);",
+    "uint8_t _bitOrder(uint8_t bitOrder);",
+    "uint8_t _dataMode(uint8_t dataMode);"
+],"methodNames":[]}
